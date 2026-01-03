@@ -1,0 +1,121 @@
+clc
+clear
+
+data_dam = load('AL0625_1_dam.mat');
+data_undam = load('AL0625_1_undam.mat');
+
+
+
+%% Preprocess data and mask to have the required shape for further steps
+
+% Wave data with damage present
+wave_data_dam_ = data_dam.AL0625_1_dam;
+wave_data_dam = reshape(wave_data_dam_,sqrt(size(wave_data_dam_,1)),sqrt(size(wave_data_dam_,1)),size(wave_data_dam_,2));
+
+wave_data_dam = wave_data_dam(:,:,1:100);
+
+% Wave data without damage
+
+wave_data_undam_ = data_undam.AL0625_1_undam;
+wave_data_undam = reshape(wave_data_undam_,sqrt(size(wave_data_undam_,1)),sqrt(size(wave_data_undam_,1)),size(wave_data_undam_,2));
+
+wave_data_undam = wave_data_undam(:,:,1:100);
+
+
+% Estimate Primary source and damage location using energy method
+wave_power = sum(wave_data_dam.^2,3);
+
+mx = max(wave_power(:));
+[trueI,trueJ] = find(wave_power==mx);
+
+mg = min(wave_power(:));
+[trueI_,trueJ_] = find(wave_power==mg);
+
+Lx = 4*del2(eye(size(wave_data_dam,2)));
+Ly = 4*del2(eye(size(wave_data_dam,1)));
+Lt = 4*del2(eye(size(wave_data_dam,3)));
+
+[V_x,Dx] = eig(Lx);
+[V_y,Dy] = eig(Ly);
+[V_t,Dt] = eig(Lt);
+
+centers = [1;1;1;1]*[trueI,trueJ];
+%%
+
+for iii = 1:4
+
+    addpath(genpath( './all_libs/WIMF'))
+
+    [a1,b1] = mids(1,1,centers(1,1),centers(1,2));
+    [a2,b2] = mids(1,100,centers(2,1),centers(2,2));
+    [a3,b3] = mids(100,100,centers(3,1),centers(3,2));
+    [a4,b4] = mids(100,1,centers(4,1),centers(4,2));
+    
+    centers(1,1) = a1; centers(1,2) = b1;
+    centers(2,1) = a2; centers(2,2) = b2;
+    centers(3,1) = a3; centers(3,2) = b3;
+    centers(4,1) = a4; centers(4,2) = b4;
+    
+    if iii<=3
+        continue
+    end
+
+    wave_data_dam_ = wave_data_dam;
+    wave_data_undam_ = wave_data_undam;
+
+    wave_data_dam_(a1:a4,b1:b2,:) = 0;
+    wave_data_undam_(a1:a4,b1:b2,:) = 0;
+    
+    Trans = ones(size(wave_data_dam));
+    Trans(a1:a4,b1:b2,:) = 0;
+    
+    
+    [Dc_dam,x_dam,C_dam] = waveInformedMatFac(wave_data_dam_,Trans,V_x,V_y,V_t,'count',4,'gradient_descent',true);
+    [Dc_undam,x_undam,C_undam] = waveInformedMatFac(wave_data_undam_,Trans,V_x,V_y,V_t,'count',4,'gradient_descent',true);
+    
+    all_D_dam{iii} = Dc_dam;
+    all_D_undam{iii} = Dc_undam;
+
+    pos_defect = [];
+    [C_undam_permuted, perm_idx] = permute_diagonal_nearest(C_dam, C_undam);
+    
+    Dc_undam = Dc_undam(:,perm_idx);
+
+    for jjj=1:size(Dc_dam,2)
+
+        power_D_dam = inv_spectral_wave_transform(Dc_dam(:,jjj)*x_dam(jjj),V_x,V_y,V_t);
+        power_D_undam = inv_spectral_wave_transform(Dc_undam(:,jjj)*x_undam(jjj),V_x,V_y,V_t);
+
+        power_D = power_D_dam - power_D_undam;
+
+        wave_power = sum(power_D(a1:a4,b1:b2,8:15).^2,3);
+        mx = max(wave_power(:));
+        [ii,jj] = find(wave_power==mx);
+
+        pos_defect = [pos_defect; a1+ii,b1+jj];
+
+        % mg = min(wave_power(:));
+        % [ij,ji] = find(wave_power==mg);
+        % pos_defect = [pos_defect; a1+ij,b1+ji];
+
+    end
+    
+    reconstructedData_dam = inv_spectral_wave_transform(Dc_dam*x_dam,V_x,V_y,V_t);
+    reconstructedData_undam = inv_spectral_wave_transform(Dc_undam*x_undam,V_x,V_y,V_t);
+    
+    defect = reconstructedData_dam - reconstructedData_undam;
+
+    wave_power = sum(defect(a1:a4,b1:b2,8:15).^2,3);
+    % wave_power = abs(sum(reconstructedData_dam(a1:a4,b1:b2,1:15).^2,3)-sum(reconstructedData_undam(a1:a4,b1:b2,1:15).^2,3));
+    mx = max(wave_power(:));
+    [ii,jj] = find(wave_power==mx);
+    pos_defect = [pos_defect; a1+ii,b1+jj];
+        
+    Positions_defect{iii} = pos_defect;
+
+
+    
+    rmpath(genpath( './all_libs/WIMF'))
+
+end
+

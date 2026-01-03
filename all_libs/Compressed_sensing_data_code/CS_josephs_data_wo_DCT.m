@@ -1,0 +1,78 @@
+%% Wavefield reconstruction based on MMV compressed sensing
+clc; clear; 
+
+addpath('C:\Users\SmartDATALab\Documents\MATLAB\2020 - Journal IEEE TSP\supreet_data')
+[m,c]= data_AL0625_dam(1);
+% datadir = 'C:\Users\SmartDATALab\Documents\MATLAB\ICCV_23\Compressed_sensing_data_code\Data\';
+% fname1 = fullfile(datadir, 'WF_sound.mat');
+% fname2 = fullfile(datadir, 'WF_damage.mat');
+% 
+% load(fname1); load(fname2);
+
+
+
+% Reconstruction
+WF_original = reshape(m.x{1}',100,100,3001);
+
+WF_original = WF_original(:,:,1:50);
+
+dim1 = size(WF_original, 1) ; dim2 = size(WF_original, 2); dim3 = size(WF_original, 3);   
+% 
+m = dim1*dim2;          % total number of true data within the grid
+comp_rate = 0.85;    % Compression rate
+k = round(m*(1-comp_rate));                % the number of measurements within a pixlated grid
+
+% Under-sampling matrix: phi
+% [phi, sample_grid2d] = under_sampl_mtx(dim1, dim2, k);
+
+%[phi, sample_grid2d] = under_sampl_mtx_x_only(dim1, dim2, comp_rate);
+
+sample_grid2d = ones(dim1,dim2);
+%sample_grid2d(36:75,36:75,:) = 0; 
+sample_grid2d(6:90,20:90,:) = 0;
+phi = grid2d_to_phi(sample_grid2d);
+
+% Basis matrix: B
+B = dct2_basis_mtx(dim1, dim2);
+
+% Sensing matrix: Psi
+Psi = phi*B;
+
+%Input for SPG-MMV (DCT)
+Yt = phi*reshape(WF_original, [dim1*dim2, dim3]);   % Sparse measurements
+n = dim3;                  % n should be smaller than the size of WF_original in dim3
+% Yf = dct(Yt, n, 2);     % dct(WF_original, n, dim)
+% Yf = dct(Yt, dim3, 2);
+% Yf = Yf(:,1:n);
+
+%% Solving MMV problem using SPG-MMV
+opts = spgSetParms('verbosity',0);         % Turn off the SPGL1 log output
+A = spg_mmv(Psi, Yt, 0, opts);             % Reconstructed basis coefficient matrix A
+Xt = B*A;                                  % Reconstruction in frequency domain
+
+% Converting into time domain
+%Xt = idct(Xf, dim3, 2); 
+
+% Reshaping the reconstructed wavefield
+Xt = reshape(Xt, [dim1, dim2, dim3]);
+
+psnr = 20*log10(sqrt(dim1*dim2*dim3)*max(abs(WF_original(:)))/norm(reshape(WF_original-Xt, [dim1*dim2*dim3, 1]),2));
+disp(psnr)    
+%% Results plot
+max1 = max(max(WF_original(:,:,25)));
+
+figure(1); %set(gcf,'units','points','position',[10,30,500,100]);
+h=pcolor(flipud(WF_original(:,:,30))); colormap('jet'); title('Original');
+h.EdgeColor = 'none'; shading interp; 
+set(gca, 'XTick', [],'YTick', []);
+%axis([1 dim2 1 8 min(WF_original(:)) max(WF_original(:)) -max1 max1]);
+
+figure(2); %set(gcf,'units','points','position',[10,30,500,100]);
+h=pcolor(flipud(Xt(:,:,30))); colormap('jet'); title('Reconstructed');
+h.EdgeColor = 'none'; shading interp;
+set(gca, 'XTick', [],'YTick', []);
+%axis([1 dim2 1 8 min(WF_original(:)) max(WF_original(:)) -max1 max1]);
+
+
+
+
