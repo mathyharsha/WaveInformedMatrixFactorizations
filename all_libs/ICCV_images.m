@@ -25,8 +25,8 @@ wave_data = wave_data(:,:,1:100);
 
 %%
 
-lx = linspace(0,1,size(wave_data,1));
-ly = linspace(0,1,size(wave_data,2));
+lx = linspace(0,99,size(wave_data,1));
+ly = linspace(0,99,size(wave_data,2));
 
 axisFontsize = 15;
 
@@ -35,8 +35,8 @@ axisFontsize = 15;
 figure,
 set(gcf, 'Units', 'centimeters', 'Position', [10, 10, 13, 10])
 imagesc(lx,ly,wave_power/max(wave_power(:)));
-xlabel('\fontsize{16}Plate width [m]')
-ylabel('\fontsize{16}Plate length [m]')
+xlabel('\fontsize{16}Plate width [mm]')
+ylabel('\fontsize{16}Plate length [mm]')
 axis xy;
 axis square;
 ax = gca;
@@ -50,8 +50,8 @@ exportgraphics(gcf,'images/wave_energy.png','Resolution',600)
 figure,
 set(gcf, 'Units', 'centimeters', 'Position', [10, 10, 13, 10])
 imagesc(lx,ly,wave_data(:,:,5)/max(wave_data(:,:,5),[],'all'));
-xlabel('\fontsize{16}Plate width [m]')
-ylabel('\fontsize{16}Plate length [m]')
+xlabel('\fontsize{16}Plate width [mm]')
+ylabel('\fontsize{16}Plate length [mm]')
 axis xy;
 axis square;
 ax = gca;
@@ -64,8 +64,8 @@ exportgraphics(gcf,'images/wave_at_5.png','Resolution',600)
 figure,
 set(gcf, 'Units', 'centimeters', 'Position', [10, 10, 13, 10])
 imagesc(lx,ly,wave_data(:,:,10)/max(wave_data(:,:,10),[],'all'));
-xlabel('\fontsize{16}Plate width [m]')
-ylabel('\fontsize{16}Plate length [m]')
+xlabel('\fontsize{16}Plate width [mm]')
+ylabel('\fontsize{16}Plate length [mm]')
 axis xy;
 axis square;
 ax = gca;
@@ -81,8 +81,8 @@ exportgraphics(gcf,'images/wave_at_10.png','Resolution',600)
 figure,
 set(gcf, 'Units', 'centimeters', 'Position', [10, 10, 13, 10])
 imagesc(lx,ly,wave_data(:,:,13)/max(wave_data(:,:,13),[],'all'));
-xlabel('\fontsize{16}Plate width [m]')
-ylabel('\fontsize{16}Plate length [m]')
+xlabel('\fontsize{16}Plate width [mm]')
+ylabel('\fontsize{16}Plate length [mm]')
 axis xy;
 axis square;
 ax = gca;
@@ -183,8 +183,8 @@ axis square;
 ax = gca;
 %colorbar;
 ax.FontSize=axisFontsize*2;
-xlabel('\fontsize{32}Plate width [m]')
-ylabel('\fontsize{32}Plate length [m]')
+xlabel('\fontsize{32}Plate width [mm]')
+ylabel('\fontsize{32}Plate length [mm]')
 grid on;
 grid minor;
 

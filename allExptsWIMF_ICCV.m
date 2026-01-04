@@ -1,7 +1,7 @@
 clc
 clear
 
-data = load('AL0625_1_dam.mat');
+data = load('./data/AL0625_1_dam.mat');
 
 
 %% Preprocess data and mask to have the required shape for further steps

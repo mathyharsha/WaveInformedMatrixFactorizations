@@ -1,8 +1,8 @@
 clc
 clear
 
-data_dam = load('AL0625_1_dam.mat');
-data_undam = load('AL0625_1_undam.mat');
+data_dam = load('./data/AL0625_1_dam.mat');
+data_undam = load('./data/AL0625_1_undam.mat');
 
 
 
