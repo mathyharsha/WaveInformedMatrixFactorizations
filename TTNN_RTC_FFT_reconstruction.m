@@ -9,40 +9,49 @@ data = load('./data/AL0625_1_dam.mat');
 wave_data_ = data.AL0625_1_dam;
 wave_data = reshape(wave_data_,sqrt(size(wave_data_,1)),sqrt(size(wave_data_,1)),size(wave_data_,2));
 
-wave_data = wave_data(:,:,1:100);
-
 wave_power = sum(wave_data.^2,3);
+wave_data = wave_data(:,:,1:100);
 
 mx = max(wave_power(:));
 [trueI,trueJ] = find(wave_power==mx);
 
-% Lx = 4*del2(eye(size(wave_data,2)));
-% Ly = 4*del2(eye(size(wave_data,1)));
-% Lt = 4*del2(eye(size(wave_data,3)));
-% 
-% [V_x,Dx] = eig(Lx);
-% [V_y,Dy] = eig(Ly);
-% [V_t,Dt] = eig(Lt);
+centers = zeros(4,2,6);
 
-centers = [1;1;1;1]*[trueI,trueJ];
-pos = [];
+A1B1 = floor([0.15,0.20;0.06,0.20;0.10,0.10;0.06,0.06;0.04,0.04;0.02,0.02]*100);
+A3B3 = floor([0.83,0.85;0.90,0.90;0.90,0.90;0.94,0.94;0.96,0.96;0.98,0.98]*100);
+
+for i = 1:6
+    a1 = A1B1(i,1);
+    b1 = A1B1(i,2);
+    a3 = A3B3(i,1);
+    b3 = A3B3(i,2);
+    
+    a2 = a1;
+    b2 = b3;
+    b4 = b1;
+    a4 = a3;
+
+    centers(1,1,i) = a1; centers(1,2,i) = b1;
+    centers(2,1,i) = a2; centers(2,2,i) = b2;
+    centers(3,1,i) = a3; centers(3,2,i) = b3;
+    centers(4,1,i) = a4; centers(4,2,i) = b4;
+end
+
 %%
 % % Code for the paper: Guangjing Song, Michael K. Ng, and Xiongjun Zhang. 
 % % Robust Tensor Completion Using Transformed Tensor Singular Value Decomposition, 
 % % Numerical Linear Algebra with Applications, 27(3):e2299, 2020.
 
-for iii= 1:5
+addpath(genpath('./all_libs/TTNN-RTC'));
 
-        addpath(genpath('./all_libs/TTNN-RTC'));
-        [a1,b1] = mids(1,1,centers(1,1),centers(1,2));
-        [a2,b2] = mids(1,100,centers(2,1),centers(2,2));
-        [a3,b3] = mids(100,100,centers(3,1),centers(3,2));
-        [a4,b4] = mids(100,1,centers(4,1),centers(4,2));
-        
-        centers(1,1) = a1; centers(1,2) = b1;
-        centers(2,1) = a2; centers(2,2) = b2;
-        centers(3,1) = a3; centers(3,2) = b3;
-        centers(4,1) = a4; centers(4,2) = b4;
+for iii= 1:6
+        pos = [];
+
+        a1 = centers(1,1,iii); b1 = centers(1,2,iii);
+        a2 = centers(2,1,iii); b2 = centers(2,2,iii);
+        a3 = centers(3,1,iii); b3 = centers(3,2,iii);
+        a4 = centers(4,1,iii); b4 = centers(4,2,iii);
+
         wave_data_ = wave_data;
         wave_data_(a1:a4,b1:b2,:) = 0;
         
@@ -100,11 +109,9 @@ for iii= 1:5
         [ii,jj] = find(wave_power_TTNN_RTC==mx);
             
         pos = [pos; a1+ii,b1+jj];
-            
-            
         Positions_TTNN_RTC{iii} = pos;
          
-        rmpath(genpath('./all_libs/TTNN-RTC'));
-
-
 end
+
+rmpath(genpath('./all_libs/TTNN-RTC'));
+save('./results/TTNN_RTC_results.mat','all_recon_TTNN_RTC',"Positions_TTNN_RTC")

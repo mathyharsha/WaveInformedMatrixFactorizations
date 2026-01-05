@@ -18,40 +18,54 @@ wave_power = sum(wave_data.^2,3);
 mx = max(wave_power(:));
 [trueI,trueJ] = find(wave_power==mx);
 
-% Lx = 4*del2(eye(size(wave_data,2)));
-% Ly = 4*del2(eye(size(wave_data,1)));
-% Lt = 4*del2(eye(size(wave_data,3)));
-% 
-% [V_x,Dx] = eig(Lx);
-% [V_y,Dy] = eig(Ly);
-% [V_t,Dt] = eig(Lt);
+centers = zeros(4,2,6);
 
-centers = [1;1;1;1]*[trueI,trueJ];
-pos = [];
+A1B1 = floor([0.15,0.20;0.06,0.20;0.10,0.10;0.06,0.06;0.04,0.04;0.02,0.02]*100);
+A3B3 = floor([0.83,0.85;0.90,0.90;0.90,0.90;0.94,0.94;0.96,0.96;0.98,0.98]*100);
+
+for i = 1:6
+    a1 = A1B1(i,1);
+    b1 = A1B1(i,2);
+    a3 = A3B3(i,1);
+    b3 = A3B3(i,2);
+    
+    a2 = a1;
+    b2 = b3;
+    b4 = b1;
+    a4 = a3;
+
+    centers(1,1,i) = a1; centers(1,2,i) = b1;
+    centers(2,1,i) = a2; centers(2,2,i) = b2;
+    centers(3,1,i) = a3; centers(3,2,i) = b3;
+    centers(4,1,i) = a4; centers(4,2,i) = b4;
+end
+
+addpath(genpath('./all_libs/TIP-Code-main_HTNN'))
+
 %%
 
-for iii= 1:1
+for iii= 1:6
+    a1 = centers(1,1,iii); b1 = centers(1,2,iii);
+    a2 = centers(2,1,iii); b2 = centers(2,2,iii);
+    a3 = centers(3,1,iii); b3 = centers(3,2,iii);
+    a4 = centers(4,1,iii); b4 = centers(4,2,iii);
 
-    %% Low-Rank High-Order Tensor Completion With Applications in Visual Data  
-    %  Wenjin Qin (HTNN-DCT)
-    addpath(genpath('./all_libs/TIP-Code-main_HTNN'))
-
-    [a1,b1] = mids(1,1,centers(1,1),centers(1,2));
-    [a2,b2] = mids(1,100,centers(2,1),centers(2,2));
-    [a3,b3] = mids(100,100,centers(3,1),centers(3,2));
-    [a4,b4] = mids(100,1,centers(4,1),centers(4,2));
-    
-    centers(1,1) = a1; centers(1,2) = b1;
-    centers(2,1) = a2; centers(2,2) = b2;
-    centers(3,1) = a3; centers(3,2) = b3;
-    centers(4,1) = a4; centers(4,2) = b4;
     wave_data_ = wave_data;
     wave_data_(a1:a4,b1:b2,:) = 0;
     
     Trans = ones(size(wave_data));
     Trans(a1:a4,b1:b2,:) = 0;
 
+    %% Low-Rank High-Order Tensor Completion With Applications in Visual Data  
+    %  Wenjin Qin (HTNN-DCT)
+
+    wave_data_ = wave_data;
+    wave_data_(a1:a4,b1:b2,:) = 0;
     
+    Trans = ones(size(wave_data));
+    Trans(a1:a4,b1:b2,:) = 0;
+
+    pos = [];
 
     X = wave_data_/max(wave_data_(:));
     mark = Trans;
@@ -64,14 +78,14 @@ for iii= 1:1
     mark = permute(mark,shift_dim);
     [n1, n2 ,n3] = size(XT);
     
-%% initial parameters 
-opts.mu = 1e-4;
-opts.max_mu = 1e8;
-opts.max_iter =80;
-opts.DEBUG = 1;
-opts.rho = 1.2;
-opts.tol = 1e-10;
-%opts.tol = 1e-8;
+    %% initial parameters 
+    opts.mu = 1e-4;
+    opts.max_mu = 1e8;
+    opts.max_iter =80;
+    opts.DEBUG = 1;
+    opts.rho = 1.2;
+    opts.tol = 1e-10;
+    %opts.tol = 1e-8;
     
     %%  Discrete Cosine Transform (DCT)
       fprintf('===== t-SVD by Discrete Cosine Transform =====\n');
@@ -92,13 +106,8 @@ opts.tol = 1e-10;
         [ii,jj] = find(wave_power_HTNN_DCT==mx);
             
         pos = [pos; a1+ii,b1+jj];
-            
-            
         Positions_HTNN_DCT{iii} = pos;
-        
-  
-       rmpath(genpath('./all_libs/TIP-Code-main_HTNN'))
-
-
 end
 
+rmpath(genpath('./all_libs/TIP-Code-main_HTNN'))
+save('./results/HTNN_DCT_results.mat','all_recon_HTNN_DCT',"Positions_HTNN_DCT")
