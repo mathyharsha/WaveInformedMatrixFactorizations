@@ -112,8 +112,6 @@ for iii = 1:4
     pos_defect = [pos_defect; a1+ii,b1+jj];
         
     Positions_defect{iii} = pos_defect;
-
-
     
     rmpath(genpath( './all_libs/WIMF'))
 
