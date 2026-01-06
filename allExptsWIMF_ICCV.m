@@ -54,7 +54,7 @@ end
 
 %%
 
-parfor iii = 1:6
+for iii = 1:6
 
     addpath(genpath( './all_libs/WIMF'))
 
@@ -69,18 +69,19 @@ parfor iii = 1:6
     Trans = ones(size(wave_data));
     Trans(a1:a4,b1:b2,:) = 0;
     
-    [Dc,x,C] = waveInformedMatFac(wave_data_,Trans,V_x,V_y,V_t,'count',5,'gradient_descent',true,'tolerance',0.01);
+    [Dc,x,C] = waveInformedMatFac(wave_data_,Trans,V_x,V_y,V_t,'count',4,'gradient_descent',true,'tolerance',0.00001);
     
     all_Ds{iii} = Dc;
     all_xs{iii} = x;
     all_Cs{iii} = C;
+    %all_losses{iii} = l_h;
 
     pos_primary = [];
     pos_secondary = [];
     for jjj=1:size(Dc,2)
         
         power_D = inv_spectral_wave_transform(Dc(:,jjj),V_x,V_y,V_t);
-        wave_power = sum(power_D(a1:a4,b1:b2,1:6).^2,3);
+        wave_power = sum(power_D(a1:a4,b1:b2,1:5).^2,3);
         mx = max(wave_power(:));
         [ii,jj] = find(wave_power==mx);
         pos_primary = [pos_primary; a1+ii,b1+jj];
@@ -92,7 +93,7 @@ parfor iii = 1:6
     end
     
     reconstructedData = inv_spectral_wave_transform(Dc*x,V_x,V_y,V_t);
-    wave_power = sum(reconstructedData(a1:a4,b1:b2,1:6).^2,3);
+    wave_power = sum(reconstructedData(a1:a4,b1:b2,1:5).^2,3);
     mx = max(wave_power(:));
     [ii,jj] = find(wave_power==mx);
 

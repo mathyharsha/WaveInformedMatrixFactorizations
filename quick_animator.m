@@ -61,7 +61,7 @@ for i = 1:25 %floor(size(defect,3))
     colorbar
     title(['WIMF Reconstruction - With Damage ' num2str(i)])
     drawnow
-    pause(0.1)
+    pause(0.5)
 end
 
 
@@ -70,7 +70,7 @@ end
 %% Animate WIMF Reconstruction
 
 addpath(genpath( './all_libs/WIMF'))
-chs_indx = 5;
+chs_indx = 4;
 ind = 2;
 centers = zeros(4,2,6);
 

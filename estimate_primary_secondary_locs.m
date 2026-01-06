@@ -31,6 +31,20 @@ mx = max(wave_power(:));
 mg = min(wave_power(:));
 [trueI_,trueJ_] = find(wave_power==mg);
 
+%% Computation of Eigenvalues and Eigenvectors of Second Derivative Matrix
+%  to use for reconstruction
+
+Lx = 4*del2(eye(size(wave_data_dam,2)));
+Ly = 4*del2(eye(size(wave_data_dam,1)));
+Lt = 4*del2(eye(size(wave_data_dam,3)));
+
+[V_x,Dx] = eig(Lx);
+[V_y,Dy] = eig(Ly);
+[V_t,Dt] = eig(Lt);
+
+
+
+
 %% Print summary
 fprintf('\n========================================\n');
 fprintf('Data Processing Complete\n');
@@ -41,15 +55,74 @@ fprintf('Secondary source location: (%d, %d)\n', trueI_, trueJ_);
 fprintf('========================================\n\n');
 
 
-%% Print estimated defect positions for each mask
 
-load('results/secondary_results.mat')
-fprintf('========================================\n');
-fprintf('Estimated Secondary Source Locations\n');
-fprintf('========================================\n');
+%%
+
+% Load the .mat files
+load('./results/primary_secondary_results.mat', 'Positions_primary');
+load('./results/secondary_results.mat', 'Positions_defect');
+
+
+% Define mask labels
 mask_labels = {'(a)', '(b)', '(c)', '(d)', '(e)', '(f)'};
-for i = 1:length(Positions_defect)
-    pos = Positions_defect{i};
-    fprintf('Mask %s: (%d, %d)\n', mask_labels{i}, pos(1), pos(2));
+
+% Initialize cell arrays to store table data
+nCases = 6; % Number of cases
+
+% Preallocate cell arrays for the tables
+primaryTableData = cell(nCases, 1);
+defectTableData = cell(nCases, 1);
+
+% Process Positions_primary data
+for i = 1:nCases
+    positions = Positions_primary{i};
+    if ~isempty(positions)
+        % Format as coordinate pairs: (x1, y1), (x2, y2), ...
+        coordStrings = cell(size(positions, 1), 1);
+        for j = 1:size(positions, 1)
+            coordStrings{j} = sprintf('(%.2f, %.2f)', positions(j, 1), positions(j, 2));
+        end
+        primaryTableData{i} = strjoin(coordStrings, '; ');
+    else
+        primaryTableData{i} = 'No detections';
+    end
 end
-fprintf('========================================\n\n');
+
+% Process Positions_defect data
+for i = 1:nCases
+    positions = Positions_defect{i};
+    if ~isempty(positions)
+        % Format as coordinate pairs
+        coordStrings = cell(size(positions, 1), 1);
+        for j = 1:size(positions, 1)
+            coordStrings{j} = sprintf('(%.2f, %.2f)', positions(j, 1), positions(j, 2));
+        end
+        defectTableData{i} = strjoin(coordStrings, '; ');
+    else
+        defectTableData{i} = 'No detections';
+    end
+end
+
+% Create the tables using mask labels
+% Table 1: Primary damage positions
+primaryTable = table(mask_labels', primaryTableData, ...
+    'VariableNames', {'Mask', 'Estimated_Primary_Source_Locations'});
+
+% Table 2: Secondary defect positions
+defectTable = table(mask_labels', defectTableData, ...
+    'VariableNames', {'Mask', 'Locations_Secondary_Source_Locations'});
+
+% Display the tables
+disp('Table 1: Primary Damage Detection Results for WIMF (N_D = 4)');
+disp(primaryTable);
+
+fprintf('\n\n');
+
+disp('Table 2: Secondary Defect Detection Results for WIMF (N_D = 1)');
+disp(defectTable);
+
+% Optional: Save tables to file
+writetable(primaryTable, './results/primary_damage_table.csv');
+writetable(defectTable, './results/secondary_defect_table.csv');
+
+fprintf('\nTables saved to CSV files.\n');

@@ -64,7 +64,7 @@ function [Dc,x,C] = waveInformedMatFac(data,Trans,V_x,V_y,V_t,varargin)
     gradient_steps = 0;
 
 while polar>1+threshold
-    
+    alpha = 5; 
     count = count+1;
     % if isempty(Dc)
     %     z = data_hat;
@@ -146,7 +146,7 @@ while polar>1+threshold
     % iteration_history = [];
     % (norm(Dnew-Dc)/norm(Dc)) + (norm(xnew-x)/norm(xnew))
 
-    while norm(Dnew-Dc)/(alpha*norm(Dc)) + norm(xnew-x)/(alpha*norm(x)) > 2*size(Dc,2)*(tol)
+    while norm(Dnew-Dc,'fro')/(norm(Dc,'fro')) + norm(xnew-x)/(norm(x)) > 2*size(Dc,2)*(tol)
        if i > 1   
            Dc = Dnew;
            x = xnew;
@@ -161,7 +161,7 @@ while polar>1+threshold
            summer = summer + norm(  full( ( gamma*((A1+A2) - (1/C(j,j)^2)*A3 )  )*Dc(:,j) )  )^2; 
         end
 
-        objall = 0.5*norm( data_hat - spectralMask(Dc*x,Trans,V_x,V_y,V_t)  )^2 + 0.5*lambda*(gamma*summer + norm(Dc,'fro')^2 + norm(x)^2 );
+        objall = 0.5*norm( data_hat - spectralMask(Dc*x,Trans,V_x,V_y,V_t)  )^2 + 0.5*lambda*(summer + norm(Dc,'fro')^2 + norm(x)^2 );
         
         % % Store initial loss for this outer iteration
         % loss_history = [loss_history, objall];
@@ -185,47 +185,28 @@ while polar>1+threshold
             summer = summer + norm(  full( ( gamma*((A1+A2) - (1/Cnew(j,j)^2)*(A3) )  )*Dnew(:,j) )  )^2; 
         end
 
-        objnew = 0.5*norm( data_hat - spectralMask(Dnew*xnew,Trans,V_x,V_y,V_t)  )^2 + 0.5*lambda*(gamma*summer + norm(Dnew,'fro')^2 + norm(xnew)^2 );
-        disp('---')
-        disp('Gradient steps taken')
-        disp(gradient_steps)
-        disp('Learning rate ' )
-        disp(alpha)
-        disp('How bad is the reduce: ')
-        disp((norm(Dnew - Dc)/(alpha*norm(Dc))) + (norm(xnew-x)/(alpha*norm(x))))
-        disp('Present Loss Function Value')
-        disp(objall)
-        disp('Increase caused by higher learning rate')
-        disp(objnew)
+        objnew = 0.5*norm( data_hat - spectralMask(Dnew*xnew,Trans,V_x,V_y,V_t)  )^2 + 0.5*lambda*(summer + norm(Dnew,'fro')^2 + norm(xnew)^2 );
+        % disp('---')
+        % disp('Gradient steps taken')
+        % disp(gradient_steps)
+        % disp('Learning rate ' )
+        % disp(alpha)
+        % disp('How bad is the reduce: ')
+        % disp((norm(Dnew - Dc)/(norm(Dc))) + (norm(xnew-x)/(norm(x))))
+        % disp('Present Loss Function Value')
+        % disp(objall)
+        % disp('Increase caused by higher learning rate')
+        % disp(objnew)
         %disp(objnew<=objall)
-        disp('Decreasing learning rate...')
 
-        disp('---')
         % ((norm(Dnew - Dc)/norm(Dc))+((norm(xnew-x)/norm(x))))
-        if (objnew<objall) || ( (norm(Dnew-Dc)/(alpha*norm(Dc)) + norm(xnew-x)/(alpha*norm(x))) < 2*size(Dc,2)*(tol))       
-            
-            % disp('Step accepted')
-            % disp('---')
-            % 
-            % % Update loss history with accepted value
-            % loss_history(end) = objnew;
-            % 
-            % % Update plot
-            % figure(fig);
-            % semilogy(iteration_history, loss_history, 'b-o', 'LineWidth', 2, 'MarkerSize', 6);
-            % grid on;
-            % xlabel('Iteration', 'FontSize', 12, 'FontWeight', 'bold');
-            % ylabel('Objective Function Value (log scale)', 'FontSize', 12, 'FontWeight', 'bold');
-            % title(sprintf('Gradient Descent Progress - Iteration %d, Loss: %.4e', i, objnew), ...
-            %       'FontSize', 14, 'FontWeight', 'bold');
-            % 
-            % drawnow;
-            
+        if (objnew<objall) || ( (norm(Dnew-Dc,'fro')/(norm(Dc,'fro')) + norm(xnew-x)/(norm(x))) < 2*size(Dc,2)*(tol))      
             break; 
         end
-
+        % disp('Decreasing learning rate...')
+        % 
+        % disp('---')
         alpha = alpha/1.3;
-
 
        end
 
@@ -235,6 +216,9 @@ while polar>1+threshold
 
     % Dc = Dnew;
     % x = xnew;
+    
+    fprintf("Gradient Steps: %d",gradient_steps-int16(log10(0.001/alpha))/log10(1.3))
+
     end
     
     % % Gradient descent - Modified using Claude

@@ -107,8 +107,8 @@ Trans = ones(size(wave_data_dam));
 Trans(a1:a4,b1:b2,:) = 0;
 
 
-[Dc_dam,x_dam,C_dam] = waveInformedMatFac(wave_data_dam_,Trans,V_x,V_y,V_t,'count',1,'gradient_descent',true);
-[Dc_undam,x_undam,C_undam] = waveInformedMatFac(wave_data_undam_,Trans,V_x,V_y,V_t,'count',1,'gradient_descent',true);
+[Dc_dam,x_dam,C_dam] = waveInformedMatFac(wave_data_dam_,Trans,V_x,V_y,V_t,'count',1,'gradient_descent',true,'tolerance',1e-4);
+[Dc_undam,x_undam,C_undam] = waveInformedMatFac(wave_data_undam_,Trans,V_x,V_y,V_t,'count',1,'gradient_descent',true,'tolerance',1e-4);
 
 all_D_dam{indx} = Dc_dam;
 all_D_undam{indx} = Dc_undam;
