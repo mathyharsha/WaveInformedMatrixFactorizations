@@ -99,17 +99,20 @@ for iii = 1:6
 
     mg = min(wave_power(:));
     [ij,ji] = find(wave_power==mg);
+    Positions_secondary{iii} = pos_secondary;
     
+    all_recons{iii} = reconstructedData;
+
     pos_primary = [pos_primary; a1+ii,b1+jj];
     pos_secondary = [pos_secondary; a1+ij,b1+ji];
     
-    Positions_primary{iii} = pos_primary;
-    Positions_secondary{iii} = pos_secondary;
+    Positions{iii} = pos_primary;
+    
     
     psnr_vals{iii} = calculate_psnr(wave_data,reconstructedData);
     
     rmpath(genpath( './all_libs/WIMF'))
 end
 
-save('./results/primary_secondary_results.mat','Positions_primary', ...
-    'Positions_secondary','all_Ds','all_xs','all_Cs');
+save('./results/primary_secondary_results.mat','Positions', ...
+    'Positions_secondary',"psnr_vals",'all_Ds','all_xs','all_Cs');

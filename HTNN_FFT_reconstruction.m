@@ -45,6 +45,7 @@ addpath(genpath('./all_libs/TIP-Code-main_HTNN'))
 for iii= 1:6
 
     pos = [];
+    pos_secondary = [];
 
     a1 = centers(1,1,iii); b1 = centers(1,2,iii);
     a2 = centers(2,1,iii); b2 = centers(2,2,iii);
@@ -72,14 +73,14 @@ for iii= 1:6
     mark = permute(mark,shift_dim);
     [n1, n2 ,n3] = size(XT);
     
-%% initial parameters 
-opts.mu = 1e-4;
-opts.max_mu = 1e8;
-opts.max_iter =80;
-opts.DEBUG = 1;
-opts.rho = 1.2;
-opts.tol = 1e-10;
-%opts.tol = 1e-8;
+    %% initial parameters 
+    opts.mu = 1e-4;
+    opts.max_mu = 1e8;
+    opts.max_iter =80;
+    opts.DEBUG = 1;
+    opts.rho = 1.2;
+    opts.tol = 1e-10;
+    %opts.tol = 1e-8;
     
     %%  Discrete Cosine Transform (DCT)
        fprintf('===== t-SVD by FFT =====\n');
@@ -90,20 +91,21 @@ opts.tol = 1e-10;
        Xhat2=min(maxP,Xhat1);
        Xhat2=permute(Xhat2,shift_dim);
     
-       all_recon_HTNN_FFT{iii} = Xhat2;
-        
+       all_recons{iii} = Xhat2;
+        psnr_vals{iii} = calculate_psnr(wave_data,Xhat2);
         wave_power_HTNN_FFT = sum(abs(Xhat2(a1:a4,b1:b2,1:5)).^2,3);
        
         mx = max(wave_power_HTNN_FFT(:));
         [ii,jj] = find(wave_power_HTNN_FFT==mx);
             
-        pos = [pos; a1+ii,b1+jj];
-            
-            
-        Positions_HTNN_FFT{iii} = pos;
+        mg = min(wave_power_HTNN_FFT(:));
+        [ij,ji] = find(wave_power_HTNN_FFT==mg);
         
-  
-       
+    
+        pos = [pos; a1+ii,b1+jj];
+        pos_secondary = [pos_secondary; a1+ij,b1+ji];
+        Positions{iii} = pos;
+        Positions_secondary{iii} = pos_secondary;
 
 
 end
@@ -111,5 +113,5 @@ end
 
 rmpath(genpath('./all_libs/TIP-Code-main_HTNN'))
 
-save('./results/HTNN_FFT_results.mat','Positions_HTNN_FFT','all_recon_HTNN_FFT')
+save('./results/HTNN_FFT_results.mat','Positions','all_recons',"Positions_secondary",'psnr_vals')
 

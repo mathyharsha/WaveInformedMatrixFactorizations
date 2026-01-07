@@ -50,6 +50,7 @@ addpath(genpath('./all_libs/Multi-dimensional-imaging-data-recovery-via-minimizi
 for iii= 1:6
 
     pos = [];
+    pos_secondary = [];
 
     a1 = centers(1,1,iii); b1 = centers(1,2,iii);
     a2 = centers(2,1,iii); b2 = centers(2,2,iii);
@@ -88,16 +89,23 @@ for iii= 1:6
     % end
     % mSSIM3 = mean(SSIMv3);mPSNR3 = mean(PSNRv3);
     
-    all_recons_PSTNN{iii} = Xhat3;
-    
+    all_recons{iii} = Xhat3;
+    psnr_vals{iii} = calculate_psnr(wave_data,Xhat3);
     wave_power_PSTNN = sum(Xhat3(a1:a4,b1:b2,1:5).^2,3);
     mx = max(wave_power_PSTNN(:));
     [ii,jj] = find(wave_power_PSTNN==mx);
         
+    mg = min(wave_power_PSTNN(:));
+    [ij,ji] = find(wave_power_PSTNN==mg);
+    
+
     pos = [pos; a1+ii,b1+jj];
-    Positions_PSTNN{iii} = pos;
+    pos_secondary = [pos_secondary; a1+ij,b1+ji];
+    Positions{iii} = pos;
+    Positions_secondary{iii} = pos_secondary;
+
 
 end
 
 rmpath(genpath('./all_libs/Multi-dimensional-imaging-data-recovery-via-minimizing-the-partial-sum-of-tubal-nuclear-norm-master')); 
-save('./results/PSTNN_results.mat','all_recons_PSTNN',"Positions_PSTNN")
+save('./results/PSTNN_results.mat','all_recons',"Positions","Positions_secondary","psnr_vals")

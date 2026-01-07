@@ -75,6 +75,7 @@ for iii= 1:6
     % High Accuracy LRTC (solve the original problem, HaLRTC algorithm in the paper)
     
     pos = [];
+    pos_secondary = [];
     
     rho = 1e-1;
     [X_H, errList_H] = HaLRTC(...
@@ -87,16 +88,22 @@ for iii= 1:6
         );
     
     reconstructedData_HaLRTC  =X_H;
-    all_recons_HaLRTC{iii} = reconstructedData_HaLRTC;
+    psnr_vals{iii} = calculate_psnr(wave_data,reconstructedData_HaLRTC);
+    all_recons{iii} = reconstructedData_HaLRTC;
     wave_power_HaLRTC = sum(reconstructedData_HaLRTC(a1:a4,b1:b2,1:5).^2,3);
     mx = max(wave_power_HaLRTC(:));
     [ii,jj] = find(wave_power_HaLRTC==mx);
     
-    pos = [pos; a1+ii,b1+jj];
+     mg = min(wave_power(:));
+     [ij,ji] = find(wave_power==mg);
+        
     
-    Positions_HaLRTC{iii} = pos;
+    pos = [pos; a1+ii,b1+jj];
+    pos_secondary = [pos_secondary; a1+ij,b1+ji];
+    Positions{iii} = pos;
+    Positions_secondary{iii} = pos_secondary;
 
 end
 
 rmpath(genpath('./all_libs/TensorCompletion'))
-save('./results/HALRTC_results.mat','all_recons_HaLRTC',"Positions_HaLRTC")
+save('./results/HALRTC_results.mat','all_recons',"Positions","Positions_secondary","psnr_vals")

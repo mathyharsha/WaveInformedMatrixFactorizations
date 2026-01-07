@@ -44,6 +44,7 @@ addpath(genpath('./all_libs/TTNN-RTC'));
 for iii= 1:6
 
         pos = [];
+        pos_secondary = [];
 
         a1 = centers(1,1,iii); b1 = centers(1,2,iii);
         a2 = centers(2,1,iii); b2 = centers(2,2,iii);
@@ -92,10 +93,10 @@ for iii= 1:6
         opts.dim = dim;    
 
         %%  FFT
-  fprintf('===== t-SVD by Fourier transform =====\n');
-   tic
-    [X, E, k, eta, aaa] = TNN(ZZ,mark,dim,opts);
-   toc
+          fprintf('===== t-SVD by Fourier transform =====\n');
+           tic
+            [X, E, k, eta, aaa] = TNN(ZZ,mark,dim,opts);
+           toc
            %% U Transform
 
         fprintf('===== t-SVD by unitary transform =====\n');
@@ -115,15 +116,22 @@ for iii= 1:6
          
         %%
 
-        all_recon_TTNN_RTC_UT{iii} = XU;
-        
+        all_recons{iii} = XU;
+        psnr_vals{iii} = calculate_psnr(wave_data,XU);
+
         wave_power_TTNN_RTC_U = sum(XU(a1:a4,b1:b2,1:5).^2,3);
         mx = max(wave_power_TTNN_RTC_U(:));
         [ii,jj] = find(wave_power_TTNN_RTC_U==mx);
            
+        mg = min(wave_power_TTNN_RTC_U(:));
+        [ij,ji] = find(wave_power_TTNN_RTC_U==mg);
+        
+    
         pos = [pos; a1+ii,b1+jj];
-        Positions_TTNN_RTC_UT{iii} = pos;
+        pos_secondary = [pos_secondary; a1+ij,b1+ji];
+        Positions{iii} = pos;
+        Positions_secondary{iii} = pos_secondary;
 end
 
 rmpath(genpath('./all_libs/TTNN-RTC'));
-save('./results/TTNN_RTC_UT_results.mat','all_recon_TTNN_RTC_UT',"Positions_TTNN_RTC_UT")
+save('./results/TTNN_RTC_UT_results.mat','all_recons',"Positions","Positions_secondary",'psnr_vals')

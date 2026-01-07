@@ -5,15 +5,15 @@ data = load('./data/AL0625_1_dam.mat');
 
 %% Preprocess data and mask to have the required shape for further steps
 
-
 wave_data_ = data.AL0625_1_dam;
 wave_data = reshape(wave_data_,sqrt(size(wave_data_,1)),sqrt(size(wave_data_,1)),size(wave_data_,2));
-
 wave_power = sum(wave_data.^2,3);
+
 wave_data = wave_data(:,:,1:100);
 
 mx = max(wave_power(:));
 [trueI,trueJ] = find(wave_power==mx);
+
 
 centers = zeros(4,2,6);
 
@@ -38,21 +38,19 @@ for i = 1:6
 end
 
 %%
-% % Code for the paper: Guangjing Song, Michael K. Ng, and Xiongjun Zhang. 
-% % Robust Tensor Completion Using Transformed Tensor Singular Value Decomposition, 
-% % Numerical Linear Algebra with Applications, 27(3):e2299, 2020.
 
 addpath(genpath('./all_libs/TTNN-RTC'));
 
 for iii= 1:6
+
         pos = [];
         pos_secondary = [];
-        
+
         a1 = centers(1,1,iii); b1 = centers(1,2,iii);
         a2 = centers(2,1,iii); b2 = centers(2,2,iii);
         a3 = centers(3,1,iii); b3 = centers(3,2,iii);
         a4 = centers(4,1,iii); b4 = centers(4,2,iii);
-
+       
         wave_data_ = wave_data;
         wave_data_(a1:a4,b1:b2,:) = 0;
         
@@ -94,23 +92,38 @@ for iii= 1:6
         opts.Omega = mark;          
         opts.dim = dim;    
 
-
         %%  FFT
           fprintf('===== t-SVD by Fourier transform =====\n');
            tic
             [X, E, k, eta, aaa] = TNN(ZZ,mark,dim,opts);
            toc
+           %% U Transform
+
+        fprintf('===== t-SVD by unitary transform =====\n');
+        
+        %% U matrix
+        O = tenmat(X,[3]); % unfolding
+        O = O.data;
+        [U, D, V] = svd(O,'econ');
+        
+        
+        mu = 25/sqrt(max(dim(1),dim(2))*dim(3));
+        opts.mu = mu;
+        %%
+          tic
+            [XU, E, k] = UTNN(U, ZZ,mark,dim,opts);
+          toc
          
         %%
 
-        all_recons{iii} = X;
-        psnr_vals{iii} = calculate_psnr(wave_data,X);
-        
-        wave_power_TTNN_RTC = sum(X(a1:a4,b1:b2,1:5).^2,3);
-        mx = max(wave_power_TTNN_RTC(:));
-        [ii,jj] = find(wave_power_TTNN_RTC==mx);
-            
-        mg = min(wave_power_TTNN_RTC(:));
+        all_recons{iii} = XU;
+        psnr_vals{iii} = calculate_psnr(wave_data,XU);
+
+        wave_power_TTNN_RTC_U = sum(XU(a1:a4,b1:b2,1:5).^2,3);
+        mx = max(wave_power_TTNN_RTC_U(:));
+        [ii,jj] = find(wave_power_TTNN_RTC_U==mx);
+           
+        mg = min(wave_power_TTNN_RTC_U(:));
         [ij,ji] = find(wave_power_TTNN_RTC==mg);
         
     
@@ -118,8 +131,7 @@ for iii= 1:6
         pos_secondary = [pos_secondary; a1+ij,b1+ji];
         Positions{iii} = pos;
         Positions_secondary{iii} = pos_secondary;
-         
 end
 
 rmpath(genpath('./all_libs/TTNN-RTC'));
-save('./results/TTNN_RTC_results.mat','all_recons',"Positions","Positions_secondary","psnr_vals")
+save('./results/TTNN_RTC_UT_results.mat','all_recons',"Positions","Positions_secondary",'psnr_vals')

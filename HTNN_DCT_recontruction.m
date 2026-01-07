@@ -66,6 +66,7 @@ for iii= 1:6
     Trans(a1:a4,b1:b2,:) = 0;
 
     pos = [];
+    pos_secondary = [];
 
     X = wave_data_/max(wave_data_(:));
     mark = Trans;
@@ -98,16 +99,23 @@ for iii= 1:6
        Xhat2=min(maxP,Xhat1);
        Xhat2=permute(Xhat2,shift_dim);
     
-       all_recon_HTNN_DCT{iii} = Xhat2;
-        
+        all_recons{iii} = Xhat2;
+        psnr_vals{iii} = calculate_psnr(wave_data,Xhat2);
         wave_power_HTNN_DCT = sum(abs(Xhat2(a1:a4,b1:b2,1:5)).^2,3);
        
         mx = max(wave_power_HTNN_DCT(:));
         [ii,jj] = find(wave_power_HTNN_DCT==mx);
-            
+
+        mg = min(wave_power_HTNN_DCT(:));
+        [ij,ji] = find(wave_power_HTNN_DCT==mg);
+        
+    
         pos = [pos; a1+ii,b1+jj];
-        Positions_HTNN_DCT{iii} = pos;
+        pos_secondary = [pos_secondary; a1+ij,b1+ji];
+        Positions{iii} = pos;
+        Positions_secondary{iii} = pos_secondary;
+
 end
 
 rmpath(genpath('./all_libs/TIP-Code-main_HTNN'))
-save('./results/HTNN_DCT_results.mat','all_recon_HTNN_DCT',"Positions_HTNN_DCT")
+save('./results/HTNN_DCT_results.mat','all_recons',"Positions",'Positions_secondary',"psnr_vals")

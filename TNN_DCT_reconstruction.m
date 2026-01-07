@@ -53,6 +53,7 @@ addpath(genpath('./all_libs/Tensor-robust-PCA-and-tensor-completion-under-linear
 for iii= 1:6
        
     pos = [];
+    pos_secondary = [];
     
     a1 = centers(1,1,iii); b1 = centers(1,2,iii);
     a2 = centers(2,1,iii); b2 = centers(2,2,iii);
@@ -119,17 +120,22 @@ for iii= 1:6
     trank = tubalrank(Xhat,transform);
     RSE = norm(X(:)-Xhat(:))/norm(X(:));
     
-    all_recon_TNN_DCT{iii} = Xhat;
-    
+    all_recons{iii} = Xhat;
+    psnr_vals{iii} = calculate_psnr(wave_data,Xhat);
+
     wave_power_TNN_DCT = sum(Xhat(a1:a4,b1:b2,1:5).^2,3);
     mx = max(wave_power_TNN_DCT(:));
     [ii,jj] = find(wave_power_TNN_DCT==mx);
         
+    mg = min(wave_power_TNN_DCT(:));
+    [ij,ji] = find(wave_power_TNN_DCT==mg);
+    
+
     pos = [pos; a1+ii,b1+jj];
-        
-        
-    Positions_TNN_DCT{iii} = pos;
+    pos_secondary = [pos_secondary; a1+ij,b1+ji];
+    Positions{iii} = pos;
+    Positions_secondary{iii} = pos_secondary;
 end
 
 rmpath(genpath('./all_libs/Tensor-robust-PCA-and-tensor-completion-under-linear-transform-main'))
-save('./results/TNN_DCT_results.mat','all_recon_TNN_DCT',"Positions_TNN_DCT")
+save('./results/TNN_DCT_results.mat','all_recons',"Positions","Positions_secondary",'psnr_vals')
