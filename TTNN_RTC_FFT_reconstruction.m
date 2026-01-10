@@ -122,4 +122,4 @@ for iii= 1:6
 end
 
 rmpath(genpath('./all_libs/TTNN-RTC'));
-save('./results/TTNN_RTC_results.mat','all_recons',"Positions","Positions_secondary","psnr_vals")
+save('./results/TTNN_RTC_FFT_results.mat','all_recons',"Positions","Positions_secondary","psnr_vals")
