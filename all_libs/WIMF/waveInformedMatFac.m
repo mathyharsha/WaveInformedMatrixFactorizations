@@ -4,7 +4,7 @@ function [Dc,x,C] = waveInformedMatFac(data,Trans,V_x,V_y,V_t,varargin)
     %     thres = varargin{2}; 
     % end
     
-    algo_parameters = containers.Map({'count','gradient_descent','tolerance'},{5,false,0.1});
+    algo_parameters = containers.Map({'count','gradient_descent','tolerance','threshold'},{5,false,0.1,0.1});
 
 
     wave_data = data;
@@ -55,7 +55,7 @@ function [Dc,x,C] = waveInformedMatFac(data,Trans,V_x,V_y,V_t,varargin)
     x = [];
     C = [];
 
-    threshold = 0.1;
+    threshold = algo_parameters('threshold');
 
     polar = 100;
 

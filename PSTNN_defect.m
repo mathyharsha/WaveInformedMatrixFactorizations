@@ -21,6 +21,7 @@ wave_data_undam = reshape(wave_data_undam_,sqrt(size(wave_data_undam_,1)),sqrt(s
 
 wave_data_undam = wave_data_undam(:,:,1:100);
 
+disp_wave_power_est = zeros(size(wave_data_undam,1),size(wave_data_undam,2),6);
 
 centers = zeros(4,2,6);
 
@@ -44,17 +45,18 @@ for i = 1:6
     centers(4,1,i) = a4; centers(4,2,i) = b4;
 end
 
+PSTNN_defect_pos = [];
 
 addpath(genpath('./all_libs/Multi-dimensional-imaging-data-recovery-via-minimizing-the-partial-sum-of-tubal-nuclear-norm-master')); 
 
-indx = 3;
+for indx = 1:6
 
-a1 = centers(1,1,indx); b1 = centers(1,2,indx);
-a2 = centers(2,1,indx); b2 = centers(2,2,indx);
-a3 = centers(3,1,indx); b3 = centers(3,2,indx);
-a4 = centers(4,1,indx); b4 = centers(4,2,indx);
-
-% Damage
+    a1 = centers(1,1,indx); b1 = centers(1,2,indx);
+    a2 = centers(2,1,indx); b2 = centers(2,2,indx);
+    a3 = centers(3,1,indx); b3 = centers(3,2,indx);
+    a4 = centers(4,1,indx); b4 = centers(4,2,indx);
+    
+    % Damage
 
     wave_data_ = wave_data_dam;
     wave_data_(a1:a4,b1:b2,:) = 0;
@@ -125,7 +127,9 @@ a4 = centers(4,1,indx); b4 = centers(4,2,indx);
       mx = max(wave_power_est(:));
       [ii,jj] = find(wave_power_est==mx);
 
-      PSTNN_defect_pos = [a1+ii,b1+jj];
-
-      save('./results/PSTNN_defect.mat','PSTNN_defect_pos')
+      PSTNN_defect_pos = [PSTNN_defect_pos; a1+ii,b1+jj];
+      
+      disp_wave_power_est(a1:a4,b1:b2,indx) = wave_power_est;
+end
+      save('./results/PSTNN_defect.mat','PSTNN_defect_pos',"disp_wave_power_est")
     rmpath(genpath('./all_libs/Multi-dimensional-imaging-data-recovery-via-minimizing-the-partial-sum-of-tubal-nuclear-norm-master')); 

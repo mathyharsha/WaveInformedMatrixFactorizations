@@ -127,6 +127,10 @@ a4 = centers(4,1,indx); b4 = centers(4,2,indx);
 
       TNN_DCT_defect_pos = [a1+ii,b1+jj];
 
-save('./results/TNN_DCT_defect.mat','TNN_DCT_defect_pos')
+      disp_wave_power_est = zeros(size(defect,1),size(defect,2));
+      
+      disp_wave_power_est(a1:a4,b1:b2) = wave_power_est;
+
+save('./results/TNN_DCT_defect.mat','TNN_DCT_defect_pos','disp_wave_power_est')
 rmpath(genpath('./all_libs/Tensor-robust-PCA-and-tensor-completion-under-linear-transform-main'))
     

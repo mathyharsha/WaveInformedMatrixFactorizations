@@ -114,5 +114,5 @@ for iii = 1:6
     rmpath(genpath( './all_libs/WIMF'))
 end
 
-save('./results/primary_secondary_results.mat','Positions', ...
+save('./results/WIRL_results.mat','Positions', ...
     'Positions_secondary',"psnr_vals",'all_Ds','all_xs','all_Cs');

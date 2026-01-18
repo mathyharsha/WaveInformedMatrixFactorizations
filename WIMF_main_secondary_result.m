@@ -67,7 +67,7 @@ lx = linspace(0,99,size(wave_data_undam,1));
 ly = linspace(0,99,size(wave_data_undam,2));
 
 axisFontsize = 15;
-
+disp_wave_power_est = zeros(size(wave_data_undam,1),size(wave_data_undam,2),6); 
 %%
 
 for indx = 1:6
@@ -158,6 +158,10 @@ wave_power_est = sum(defect(a1:a4,b1:b2,8:15).^2,3);
 mx = max(wave_power_est(:));
 [ii,jj] = find(wave_power_est==mx);
 pos_defect = [pos_defect; a1+ii,b1+jj];
+
+
+disp_wave_power_est(a1:a4,b1:b2,indx) = wave_power_est;
+
     
 Positions_defect{indx} = pos_defect;
 
@@ -165,6 +169,6 @@ end
 
 rmpath(genpath( './all_libs/WIMF'))
 
-save('./results/secondary_results.mat','Positions_defect','all_D_dam', ...
-    'all_D_undam','all_x_dam','all_x_undam','all_C_dam','all_C_undam');
+save('./results/WIRL_defect.mat','Positions_defect','all_D_dam', ...
+    'all_D_undam','all_x_dam','all_x_undam','all_C_dam','all_C_undam',"disp_wave_power_est");
 

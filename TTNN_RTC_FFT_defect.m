@@ -171,6 +171,8 @@ a4 = centers(4,1,indx); b4 = centers(4,2,indx);
 
       TTNN_RTC_FFT_defect_pos = [a1+ii,b1+jj];
 
-
-save('./results/TTNN_RTC_FFT_defect.mat','TTNN_RTC_FFT_defect_pos')
+      disp_wave_power_est = zeros(size(defect,1),size(defect,2));
+      
+      disp_wave_power_est(a1:a4,b1:b2) = wave_power_est;
+save('./results/TTNN_RTC_FFT_defect.mat','TTNN_RTC_FFT_defect_pos',"disp_wave_power_est")
 rmpath(genpath('./all_libs/TTNN-RTC'));
