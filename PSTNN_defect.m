@@ -130,6 +130,10 @@ for indx = 1:6
       PSTNN_defect_pos = [PSTNN_defect_pos; a1+ii,b1+jj];
       
       disp_wave_power_est(a1:a4,b1:b2,indx) = wave_power_est;
+
+      Positions_defect{indx} = [a1+ii,b1+jj];
+      WavePower_est{indx} = disp_wave_power_est;
+
 end
-      save('./results/PSTNN_defect.mat','PSTNN_defect_pos',"disp_wave_power_est")
+      save('./results/PSTNN_defect.mat','Positions_defect',"WavePower_est")
     rmpath(genpath('./all_libs/Multi-dimensional-imaging-data-recovery-via-minimizing-the-partial-sum-of-tubal-nuclear-norm-master')); 

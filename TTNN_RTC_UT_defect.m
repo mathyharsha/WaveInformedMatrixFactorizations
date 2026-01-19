@@ -50,6 +50,8 @@ addpath(genpath('./all_libs/TTNN-RTC'));
 
 indx = 3;
 
+for indx = 1:6
+
 a1 = centers(1,1,indx); b1 = centers(1,2,indx);
 a2 = centers(2,1,indx); b2 = centers(2,2,indx);
 a3 = centers(3,1,indx); b3 = centers(3,2,indx);
@@ -206,6 +208,10 @@ a4 = centers(4,1,indx); b4 = centers(4,2,indx);
       
       disp_wave_power_est(a1:a4,b1:b2) = wave_power_est;
 
+      Positions_defect{indx} = TTNN_RTC_UT_defect_pos;
+      WavePower_est{indx} = disp_wave_power_est;
 
-     save('./results/TTNN_RTC_UT_defect.mat','TTNN_RTC_UT_defect_pos',"disp_wave_power_est")
+end
+
+     save('./results/TTNN_RTC_UT_defect.mat','Positions_defect',"WavePower_est")
 rmpath(genpath('./all_libs/TTNN-RTC'));

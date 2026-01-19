@@ -162,6 +162,7 @@ pos_defect = [pos_defect; a1+ii,b1+jj];
 
 disp_wave_power_est(a1:a4,b1:b2,indx) = wave_power_est;
 
+WavePower_est{indx} = disp_wave_power_est(:,:,indx);
     
 Positions_defect{indx} = pos_defect;
 
@@ -170,5 +171,5 @@ end
 rmpath(genpath( './all_libs/WIMF'))
 
 save('./results/WIRL_defect.mat','Positions_defect','all_D_dam', ...
-    'all_D_undam','all_x_dam','all_x_undam','all_C_dam','all_C_undam',"disp_wave_power_est");
+    'all_D_undam','all_x_dam','all_x_undam','all_C_dam','all_C_undam',"WavePower_est");
 

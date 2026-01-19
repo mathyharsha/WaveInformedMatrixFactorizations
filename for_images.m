@@ -1,6 +1,8 @@
 
 clc
 
+addpath(genpath( './all_libs/WIMF'))
+
 data_dam = load('./data/AL0625_1_dam.mat');
 data_undam = load('./data/AL0625_1_undam.mat');
 
@@ -16,6 +18,16 @@ wave_data_undam = reshape(wave_data_,sqrt(size(wave_data_,1)),sqrt(size(wave_dat
 
 wave_power_dam = sum(wave_data_dam.^2,3);
 wave_power_undam = sum(wave_data_undam.^2,3);
+
+%%
+
+Lx = 4*del2(eye(size(wave_data_dam,2)));
+Ly = 4*del2(eye(size(wave_data_dam,1)));
+Lt = 4*del2(eye(size(wave_data_dam,3)));
+
+[V_x,Dx] = eig(Lx);
+[V_y,Dy] = eig(Ly);
+[V_t,Dt] = eig(Lt);
 
 %%
 
@@ -242,10 +254,10 @@ for indx = 1:6
                     % Extract filename
                     filename = result_files(file_idx).name;
                     
-                    % Special handling for primary_secondary_results.mat
-                    if strcmp(filename, 'primary_secondary_results.mat')
-                        label_base = 'WIRL';
-                    else
+                    % % Special handling for primary_secondary_results.mat
+                    % if strcmp(filename, 'primary_secondary_results.mat')
+                    %     label_base = 'WIRL';
+                    % else
                         % Extract filename without extension and drop everything after last _
                         %filename_no_ext = filename(1:end-12); % Remove '_results.mat'
                         underscore_pos = strfind(filename, '_');
@@ -254,7 +266,7 @@ for indx = 1:6
                         else
                             label_base = filename;
                         end
-                    end
+                    % end
                     
                     % Get marker style for this file
                     marker_style = marker_styles{mod(file_idx-1, length(marker_styles)) + 1};
@@ -349,8 +361,10 @@ fprintf('All plots saved successfully to %s\n', output_dir);
 % Load all result files
 all_files = dir('./results/*_results.mat');
 
+
+
 % Files to exclude
-exclude_files = {'primary_secondary_results.mat', 'secondary_results.mat'};
+exclude_files = {'WIRL_results.mat'};
 
 % Filter out excluded files
 valid_files = {};
@@ -438,7 +452,7 @@ for i = 1:6
 end
 
 % Slice index for 3D arrays
-slice = 5;
+slice = 3;
 
 unmask = ones(size(wave_data_dam,1),size(wave_data_dam,2));
 
@@ -460,13 +474,15 @@ if ~exist(output_dir, 'dir')
     mkdir(output_dir);
 end
 
+indx = 3;
+
 for i = 1:length(all_files)
     filename = all_files(i).name;
     filepath = fullfile('./results', filename);
     data = load(filepath);
     
     % Get the data
-    disp_data = data.disp_wave_power_est;
+    disp_data = data.WavePower_est{slice};
     
     % Check dimensions
     if ndims(disp_data) == 2
@@ -510,4 +526,7 @@ for i = 1:length(all_files)
 end
 
 fprintf('Done! All figures saved to %s\n', output_dir);
-fprintf('Done! All figures saved to %s\n', output_dir);
+
+%%
+
+rmpath(genpath( './all_libs/WIMF'))
