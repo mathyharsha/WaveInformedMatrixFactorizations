@@ -17,7 +17,7 @@ run TTNN_RTC_UT_reconstruction.m
 
 run allExptsWIMF_ICCV.m
 
-%% Secondary
+%% Defect Detection
 
 run HTNN_DCT_defect.m
 

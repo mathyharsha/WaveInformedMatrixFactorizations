@@ -173,7 +173,8 @@ while polar>1+threshold
                % cnew(j,j) = ((1/C(j,j))^2 - alpha*lambda*gamma*( ((1/C(j,j))^2)*Dc(:,j)'*full( (A1+A2).^2 *Dc(:,j)) -Dc(:,j)'* full( (A1+A2)*A3*Dc(:,j)  )  ))^(-0.5); 
                % C(j,j) = 1/sqrt(cnew(j,j));
                Dnew(:,j) = Dc(:,j) - alpha*( -x(j)*data_hat + x(j)*spectral_wave_transform(Trans.*inv_spectral_wave_transform(Dc*x,V_x,V_y,V_t),V_x,V_y,V_t) + lambda*full( (A + ( gamma*((A1+A2) - (1/C(j,j)^2)*A3 ).^2)  )*Dc(:,j)) );
-               c = (Dnew(:,j)'* ( (A1+A2).*A3 )*Dnew(:,j)) / (Dnew(:,j)'* ( A3.^2) * Dnew(:,j));
+               %c = (Dnew(:,j)'* ( (A1+A2).*A3 )*Dnew(:,j)) / (Dnew(:,j)'* ( A3.^2) * Dnew(:,j));
+               c = ((1/C(j,j))^2 - alpha*lambda*gamma*( ((1/C(j,j))^2)*Dc(:,j)'*full( (A1+A2).^2 *Dc(:,j)) -Dc(:,j)'* full( (A1+A2)*A3*Dc(:,j)  )  ))^(-0.5); 
                Cnew(j,j) = 1/sqrt(c);
                gradient_steps = gradient_steps + 1;
            end
