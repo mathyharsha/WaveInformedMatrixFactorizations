@@ -114,4 +114,4 @@ for iii = 1:6
     rmpath(genpath( './all_libs/WIMF'))
 end
 
-save('./results/WIMF_recon_results.mat',"psnr_vals",'all_Ds','all_xs','all_Cs');
+save('./results/WIRL_recon_results.mat',"psnr_vals",'all_Ds','all_xs','all_Cs');
