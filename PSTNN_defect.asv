@@ -129,7 +129,6 @@ for indx = 1:6
 
       PSTNN_defect_pos = [PSTNN_defect_pos; a1+ii,b1+jj];
       disp_wave_power_est = zeros(size(defect,1),size(defect,2));
-      
       disp_wave_power_est(a1:a4,b1:b2) = wave_power_est;
 
       Positions_defect{indx} = [a1+ii,b1+jj];
