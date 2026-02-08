@@ -110,7 +110,8 @@ for iii = 1:6
     
     
     psnr_vals{iii} = calculate_psnr(wave_data,reconstructedData);
-    
+    % disp('PSNR Values')
+    % disp(psnr_vals{iii})
     rmpath(genpath( './all_libs/WIMF'))
 end
 

@@ -452,7 +452,7 @@ for i = 1:6
 end
 
 % Slice index for 3D arrays
-slice = 3;
+slice = 5;
 
 unmask = ones(size(wave_data_dam,1),size(wave_data_dam,2));
 
