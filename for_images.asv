@@ -23,7 +23,7 @@ wave_power_undam = sum(wave_data_undam.^2,3);
 
 Lx = 4*del2(eye(size(wave_data_dam,2)));
 Ly = 4*del2(eye(size(wave_data_dam,1)));
-Lt = 4*del2(eye(100));
+Lt = 4*del2(eye(size(wave_data_dam,3)));
 
 [V_x,Dx] = eig(Lx);
 [V_y,Dy] = eig(Ly);
@@ -376,7 +376,15 @@ end
 indx = 3;  % Change this as needed
 slice_idx = 10;
 
+a1 = A1B1(i,1);
+b1 = A1B1(i,2);
+a3 = A3B3(i,1);
+b3 = A3B3(i,2);
 
+a2 = a1;
+b2 = b3;
+b4 = b1;
+a4 = a3;
 
 % Output directory
 output_dir = './recon_figures';
@@ -389,7 +397,7 @@ for i = 1:length(valid_files)
     filepath = fullfile('./results', filename);
     data = load(filepath);
     
-    if strcmp(filename, 'WIRF_recon_results.mat')
+    if strcmp(filename, 'WIMF_recon_results.mat')
         recon = inv_spectral_wave_transform(data.all_Ds{indx} * data.all_xs{indx}, V_x, V_y, V_t);
     else
         recon = data.all_recons{indx};
@@ -409,7 +417,7 @@ for i = 1:length(valid_files)
     % Clean up title
     [~, name, ~] = fileparts(filename);
     name = strrep(name, '_results', '');
-    name = strrep(name, 'WIRF_recon', 'WIRL');
+    name = strrep(name, 'WIMF_recon', 'WIRL');
     title(strrep(name, '_', '-'), 'FontSize', 11);
     
     % Save as PNG (high resolution for IEEE)
@@ -425,24 +433,6 @@ fprintf('Done! All figures saved to %s\n', output_dir);
 
 %%
 
-% Specify index (1 to 6)
-indx = 3;  % Change this as needed
-slice_idx = 10;
-
-A1B1 = floor([0.15,0.20;0.06,0.20;0.10,0.10;0.06,0.06;0.04,0.04;0.02,0.02]*100);
-A3B3 = floor([0.83,0.85;0.90,0.90;0.90,0.90;0.94,0.94;0.96,0.96;0.98,0.98]*100);
-
-
-a1 = A1B1(indx,1);
-b1 = A1B1(indx,2);
-a3 = A3B3(indx,1);
-b3 = A3B3(indx,2);
-
-a2 = a1;
-b2 = b3;
-b4 = b1;
-a4 = a3;
-
 % Load all result files
 all_files = dir('./results/*_results.mat');
 
@@ -457,10 +447,12 @@ for i = 1:length(all_files)
     end
 end
 
-
+% Specify index (1 to 6)
+indx = 3;  % Change this as needed
+slice_idx = 10;
 
 % Output directory
-output_dir = './recon_figures/cropped';
+output_dir = './recon_figures';
 if ~exist(output_dir, 'dir')
     mkdir(output_dir);
 end
@@ -470,7 +462,7 @@ for i = 1:length(valid_files)
     filepath = fullfile('./results', filename);
     data = load(filepath);
     
-    if strcmp(filename, 'WIRL_recon_results.mat')
+    if strcmp(filename, 'WIMF_recon_results.mat')
         recon = inv_spectral_wave_transform(data.all_Ds{indx} * data.all_xs{indx}, V_x, V_y, V_t);
     else
         recon = data.all_recons{indx};
@@ -479,7 +471,7 @@ for i = 1:length(valid_files)
     % Create figure (invisible)
     fig = figure('Visible', 'off', 'Position', [100, 100, 400, 350]);
     
-    imagesc(lx(a1+2:a4-2),ly(b1+2:b2-2),recon(a1+2:a4-2,b1+2:b2-2,slice_idx));
+    imagesc(recon(:,:,slice_idx));
     axis square;
     axis xy;
     colorbar;
@@ -489,8 +481,8 @@ for i = 1:length(valid_files)
     
     % Clean up title
     [~, name, ~] = fileparts(filename);
-    name = strrep(name, 'WIRL_recon', 'WIRL');
     name = strrep(name, '_results', '');
+    name = strrep(name, 'WIMF_recon', 'WIRL');
     title(strrep(name, '_', '-'), 'FontSize', 11);
     
     % Save as PNG (high resolution for IEEE)

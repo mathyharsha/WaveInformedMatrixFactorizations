@@ -15,7 +15,7 @@ run TTNN_RTC_FFT_reconstruction.m
 
 run TTNN_RTC_UT_reconstruction.m
 
-run allExptsWIMF_ICCV.m
+run WIRL_primary_result.m
 
 %% Defect Detection
 
@@ -31,7 +31,7 @@ run TTNN_RTC_FFT_defect.m
 
 run TTNN_RTC_UT_defect.m
 
-run WIMF_main_secondary_result.m
+run WIRL_main_secondary_result.m
 
 
 
