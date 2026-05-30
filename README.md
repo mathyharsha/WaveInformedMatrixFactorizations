@@ -1,6 +1,6 @@
-# Wave-Informed Matrix Factorization (WIMF)
+# Wave-Informed Tensor Completion (WITC)
 
-A MATLAB implementation of Wave-Informed Matrix Factorization, a physics-informed dictionary learning algorithm for 3D tensor data. The method embeds wave-equation regularization into the matrix factorization objective, making it well-suited for applications such as structural health monitoring, seismic analysis, and spatiotemporal signal decomposition.
+A MATLAB implementation of wave-informed tensor completion, a physics-informed dictionary learning algorithm for 3D tensor data. The method embeds wave-equation regularization into the matrix factorization objective, making it well-suited for applications such as structural health monitoring, seismic analysis, and spatiotemporal signal decomposition.
 
 ---
 
